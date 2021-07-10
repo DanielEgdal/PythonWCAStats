@@ -1,4 +1,4 @@
-# Get the data from the db with this query and save it to a csv
+# Get the data ("competition_overview.csv" from the db with this query and save it to a csv
 # select r.personid, c.countryid, c.id, c.start_date
 # from results r
 # join competitions c
@@ -11,7 +11,7 @@ import pandas as pd
 from collections import defaultdict
 import numpy as np
 
-d = pd.read_csv('pschwartz_data.csv',parse_dates=['start_date'])
+d = pd.read_csv('competition_overview.csv',parse_dates=['start_date'])
 
 lis = defaultdict(list) # The current streak of countries
 ov = defaultdict(int) # The counter for the longest streak

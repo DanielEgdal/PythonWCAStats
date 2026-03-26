@@ -25,7 +25,7 @@ where r.roundtypeid in ('c','f') and best > 0
 
 select personname, sum(tst) as point
 from cte
-where competitionid in ('HvidovreLigaI2025','HvidovreLigaII2025')
+where competitionid in ('HvidovreLigaI2025','HvidovreLigaII2025','HvidovreLigaIII2025','HvidovreLigaIV2025')
 group by personname
 order by point desc
 

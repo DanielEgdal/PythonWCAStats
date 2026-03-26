@@ -18,7 +18,7 @@ class duckdb_reader:
                                 header = true,
                                 quote='',
                                 nullstr=['null'],
-                                types={{eventId: 'varchar'}}
+                                types={{event_id: 'varchar'}}
                             )
                     """)
             except duckdb.duckdb.BinderException:

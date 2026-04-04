@@ -21,7 +21,7 @@ class duckdb_reader:
                                 types={{event_id: 'varchar'}}
                             )
                     """)
-            except duckdb.duckdb.BinderException:
+            except duckdb.BinderException:
                 self.conn.sql(f"""
                         CREATE OR REPLACE VIEW {table} AS
                         SELECT 

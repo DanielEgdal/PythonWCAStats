@@ -3,7 +3,7 @@ from duckdb_reader_v2 import duckdb_reader
 
 db = duckdb_reader(['results','competitions','round_types'])
 
-query = """
+query = f"""
 with pr_at_date_avg as (
 select person_id, c.id, make_date(c.year, c.end_month, c.end_day) as end_date
 , r.event_id, rt.rank as rt_rank
@@ -42,10 +42,39 @@ union
 select*
 from all_prs_avg )
 
-select person_id, count(*) gts
-from all_prs 
-group by person_id 
-order by gts desc
+, comps_ordered as (
+select r.person_id, c.id as comp, make_date(c.year, c.end_month, c.end_day) as end_date
+, RANK() OVER (PARTITION BY person_id ORDER BY end_date, c.id) as comp_number
+from (select distinct person_id, competition_id 
+    from results) as r
+join competitions c
+on c.id = r.competition_id
+
+)
+
+, pr_overview as (
+select co.person_id, co.comp, co.end_date, comp_number, case when a.comp is null then false else true end as pr_at_comp_flag
+from comps_ordered co
+left join (select distinct person_id, comp from all_prs) as a
+on co.person_id = a.person_id
+and co.comp = a.comp
+-- where co.person_id = '2013EGDA01'
+order by co.comp_number)
+
+, streak_group as (
+select *,
+SUM(CASE WHEN pr_at_comp_flag = false THEN 1 ELSE 0 END) OVER (PARTITION BY person_id ORDER BY person_id, comp_number) streak_group
+from pr_overview)
+
+select person_id
+, min(end_date) first_comp_with_pr_date, min_by(comp,end_date) first_comp_with_pr
+, max(end_date) last_comp_with_pr_date, max_by(comp,end_date) last_comp_with_pr
+, count(*) as comps_with_pr
+from streak_group
+where pr_at_comp_flag = true
+group by streak_group, person_id
+order by comps_with_pr desc
+
 """
 
 r = db.do_query(query)
